@@ -3,6 +3,9 @@
 
 ControlNode::ControlNode() : nh_for_params("~"){
     ROS_INFO_STREAM("Initialization...");
+    log_outfile.open("log_file_torques.text");
+
+
     status = NOTASK;
 
     qz << 0, 0, 0, 0;
@@ -39,15 +42,15 @@ ControlNode::ControlNode() : nh_for_params("~"){
             FV4,
             FS4;
 
-    kpp <<  0.5, 0, 0, 0,
-            0, 0.5, 0, 0,
-            0, 0, 0.5, 0,
-            0, 0, 0, 0.5;
+    kpp <<  0.0, 0, 0, 0,
+            0, 0.0, 0, 0,
+            0, 0, 0.0, 0,
+            0, 0, 0, 0.0;
 
-    kdp <<  5.5, 0, 0, 0,
-            0, 5.5, 0, 0,
-            0, 0, 5.5, 0,
-            0, 0, 0, 5.5;
+    kdp <<  0.0, 0, 0, 0,
+            0, 0.0, 0, 0,
+            0, 0, 0.0, 0,
+            0, 0, 0, 0.0;
 
 
 
@@ -66,6 +69,7 @@ ControlNode::ControlNode() : nh_for_params("~"){
 
 
 ControlNode::~ControlNode(){
+    log_outfile.close();
     torque_pub.shutdown();
     js_sub.shutdown();
 }
@@ -523,7 +527,7 @@ void ControlNode::calcMC(std::vector<double> q, std::vector<double> dq){
 
 
 void ControlNode::calcGTau(Matrix<double, N, 1> q, Matrix<double, N, 1> dq){
-    calcD(q, qz, -9.82);
+    calcD(q, qz, 9.82);
     G = D * chi;
 }
 
@@ -531,6 +535,7 @@ void ControlNode::calcGTau(Matrix<double, N, 1> q, Matrix<double, N, 1> dq){
 void ControlNode::jsCallback(const sensor_msgs::JointState &msg){
     Matrix<double, N, 1> q(msg.position[0], msg.position[1], msg.position[2], msg.position[3]);
     Matrix<double, N, 1> dq(msg.velocity[0], msg.velocity[1], msg.velocity[2], msg.velocity[3]);
+
     Matrix<double, N, 1> tau;
     switch(status){
         case TRAJECTORY:
@@ -551,19 +556,41 @@ void ControlNode::jsCallback(const sensor_msgs::JointState &msg){
     }
 
     for (int i = 0; i < N; i++) {
+
         tau_e.torques[i].value = tau(i);
         tau_e.torques[i].timeStamp = ros::Time::now();
+        log_outfile << tau(i) << ' ';
+
     }
-    torque_pub.publish(tau_e);
+    log_outfile << '\n';
+    for (int i = 0; i < N; i++) {
+        std::cout << tau(i) << ' ';
+    }
+    std::cout << '\n';
+    //torque_pub.publish(tau_e);
 }
 
 
 void ControlNode::poseCallback(const brics_actuator::JointPositions &msg){
     ROS_INFO_STREAM("New target pose received");
     status = POSE;
-    for (int i = 0; i < N; i++) {
-        qd[i] = msg.positions[i].value;
-    }
+
+    qd << 3.0400044219165, 1.1800003252613278, -3.00009979159634, 1.7499998514010746;
+//    for (int i = 0; i < N; i++) {
+//        std::cout << msg.positions[i].value << ' ';
+//    }
+//
+//
+//    char sure = 'n';
+//    std::cout << "\nAre you sure? [y/N]";
+//    std::cin >> sure;
+//
+//    if (sure == 'y') {
+//        qd[0] = msg.positions[0].value;
+////        for (int i = 0; i < N; i++) {
+////            qd[i] = msg.positions[i].value;
+////        }
+//    }
 }
 
 

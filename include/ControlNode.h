@@ -34,7 +34,7 @@ class ControlNode {
     ros::NodeHandle nh, nh_for_params;
     brics_actuator::JointTorques tau_e;
 
-    Matrix<double, N, 1> qd;
+    Matrix<double, N, 1> q, qd;
     Matrix<double, N, N> kpp, kdp;
     Matrix<double, N, N> M;
     Matrix<double, N, 1> C, G, tau;
@@ -56,6 +56,7 @@ class ControlNode {
     void poseCallback(const brics_actuator::JointPositions &msg);
 
 public:
+    std::ofstream log_outfile;
 
     ControlNode();
 
