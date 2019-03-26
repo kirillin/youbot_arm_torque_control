@@ -75,7 +75,7 @@ ControlNode::~ControlNode(){
 }
 
 
-void ControlNode::calcD(Matrix<double, N, 1> q, Matrix<double, N, 1> dq, double g){
+void ControlNode::calcD(Matrix<double, N, 1> q, Matrix<double, N, 1> dq, Matrix<double, N, 1> ddq, double g){
     double G3 = g;
 
     // CHECK: ??
@@ -84,15 +84,15 @@ void ControlNode::calcD(Matrix<double, N, 1> q, Matrix<double, N, 1> dq, double 
     double th3 = q[2];
     double th4 = q[3];
 
-    double QP1 = q[0];
-    double QP2 = q[1];
-    double QP3 = q[2];
-    double QP4 = q[3];
+    double QP1 = dq[0];
+    double QP2 = dq[1];
+    double QP3 = dq[2];
+    double QP4 = dq[3];
 
-    double QDP1 = dq[0];
-    double QDP2 = dq[1];
-    double QDP3 = dq[2];
-    double QDP4 = dq[3];
+    double QDP1 = ddq[0];
+    double QDP2 = ddq[1];
+    double QDP3 = ddq[2];
+    double QDP4 = ddq[3];
 
 
     double S1=sin(2.9496 - th1);
@@ -527,7 +527,7 @@ void ControlNode::calcMC(std::vector<double> q, std::vector<double> dq){
 
 
 void ControlNode::calcGTau(Matrix<double, N, 1> q, Matrix<double, N, 1> dq){
-    calcD(q, qz, 9.82);
+    calcD(q, qz, qz, 9.82);
     G = D * chi;
 }
 
@@ -543,11 +543,17 @@ void ControlNode::jsCallback(const sensor_msgs::JointState &msg){
         case POSE:
             calcGTau(q, dq);
             break;
+        case GRAVITY:
+            calcGTau(q, dq);
+            break;
         default:
             return;
     }
 
     switch(status){
+        case GRAVITY:
+            tau = G;
+            break;
         case POSE:
             tau = kpp * (qd - q) - kdp * dq + G;
             break;
@@ -562,18 +568,19 @@ void ControlNode::jsCallback(const sensor_msgs::JointState &msg){
         log_outfile << tau(i) << ' ';
 
     }
+    
     log_outfile << '\n';
     for (int i = 0; i < N; i++) {
         std::cout << tau(i) << ' ';
     }
     std::cout << '\n';
-    //torque_pub.publish(tau_e);
+    torque_pub.publish(tau_e);
 }
 
 
 void ControlNode::poseCallback(const brics_actuator::JointPositions &msg){
     ROS_INFO_STREAM("New target pose received");
-    status = POSE;
+    status = GRAVITY;
 
     qd << 3.0400044219165, 1.1800003252613278, -3.00009979159634, 1.7499998514010746;
 //    for (int i = 0; i < N; i++) {
