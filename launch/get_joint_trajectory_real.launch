@@ -3,18 +3,13 @@
 
 	<param name="robot_description" command="$(find xacro)/xacro.py '$(find youbot_description)/robots/youbot_arm_only.urdf.xacro'"/>
 
-     <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
-        <param name="use_gui" value="true"/>
-        <rosparam param="source_list">["poses/joint_states"]</rosparam>
-    </node>
-
     <node name="dec2joint_translator_node" pkg="youbot_arm_torque_control" type="dec2joint_translator.py" output="screen">
         <param name="file_with_trajectory_name" value="file_with_trajectory.txt"/>
-        <rosparam param="min_q">[0.1, 0.1, -5.08, 0.1, 0.1]</rosparam>
-        <rosparam param="max_q">[5.8, 2.6, -0.1, 3.48, 5.75]</rosparam>
+        <rosparam param="min_q">[0.15, 0.15, -5.08, 0.15, 0.15]</rosparam>
+        <rosparam param="max_q">[5.8, 2.6, -0.15, 3.48, 5.75]</rosparam>
     </node>
 
-    <node name="trajectory_vizualizator_node" pkg="youbot_arm_torque_control" type="trajectory_vizualizator.py" output="screen"/>
+    <node name="trajectory_vizualizator_real_node" pkg="youbot_arm_torque_control" type="trajectory_vizualizator_real.py" output="screen"/>
 
     <node name="decart_trajectory_publisher_node" pkg="youbot_arm_torque_control" type="decart_trajectory_publisher.py" output="screen"/>
 

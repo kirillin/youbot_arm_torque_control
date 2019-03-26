@@ -6,7 +6,7 @@ from math import sin, cos, pi
 import tf.transformations as tftr
 
 from std_msgs.msg import Header
-from youbot_arm_control.msg import DecartTrajectory
+from youbot_arm_torque_control.msg import DecartTrajectory
 from geometry_msgs.msg import PolygonStamped, Pose, PoseArray, Quaternion
 
 

@@ -22,14 +22,24 @@ def showTrajectoryCallback(req):
     if len(joint_trajectory.points) == 0:
         lock.release()
         return TriggerResponse(False, 'No one or empty trajectory have been received!')
-    for i, pose in enumerate(joint_trajectory.points):
-        js_msg.position = pose.positions
-        js_pub.publish(js_msg)
-        if i != len(joint_trajectory.points) - 1:
-            dt = joint_trajectory.points[i+1].time_from_start.to_sec() - pose.time_from_start.to_sec()
-            rospy.sleep(dt)
-        else:
-            break
+    while True:
+        for i, pose in enumerate(joint_trajectory.points):
+            js_msg.position = pose.positions
+            js_pub.publish(js_msg)
+            if i != len(joint_trajectory.points) - 1:
+                dt = joint_trajectory.points[i+1].time_from_start.to_sec() - pose.time_from_start.to_sec()
+                rospy.sleep(dt)
+            else:
+                break
+
+        j = len(joint_trajectory.points)-1
+        pose = joint_trajectory.points
+        while j > 0:
+            js_msg.position = pose[j].positions
+            js_pub.publish(js_msg)
+            j = j - 1
+            rospy.sleep(0.1)
+
     lock.release()
     return TriggerResponse(True, 'Successfully done!')
 

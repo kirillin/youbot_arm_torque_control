@@ -3,14 +3,30 @@ import tf
 import rospy
 import threading
 
-from config.config import Config
-from libs.kinematics import Kinematics
+import math
+
+from youbot_arm_kinematics.kinematics import Kinematics
+
 
 import tf.transformations as tftr
 from geometry_msgs.msg import PoseArray
 from std_srvs.srv import Trigger, TriggerResponse
-from youbot_arm_control.msg import DecartTrajectory
+from youbot_arm_torque_control.msg import DecartTrajectory
 from trajectory_msgs.msg import JointTrajectoryPoint, JointTrajectory
+
+PI = math.pi
+
+
+class Config:
+    """ KUKA YouBot's arm Denavit-Hartenberg parameters """
+    DH_A = (0.033, 0.155, 0.135, 0, 0)
+    DH_ALPHA = (PI/2, 0, 0, PI/2, 0)
+    DH_D = (0.147, 0, 0, 0, 0.218)
+    DH_THETA = (PI*169.0/180.0, PI*65.0/180.0+PI/2, -PI*146.0/180.0, PI*102.5/180.0+PI/2, PI*167.5/180.0)  #theta = DH_THETA - q
+
+    def __init__(self):
+        # TODO init from params?
+        print('im do nothing')
 
 
 class Dec2JointTranslator:
@@ -28,8 +44,8 @@ class Dec2JointTranslator:
         self.joint_trajectory.joint_names = ['arm_joint_' + str(i+1) for i in range(5)]
         self.joint_trajectory.header.stamp = rospy.Time.now()
 
-        self.min_q = rospy.get_param("~min_q", [0.1, 0.1, -5.08, 0.1, 0.1])
-        self.max_q = rospy.get_param("~max_q", [5.8, 2.6, -0.1, 3.48, 5.75])
+        self.min_q = rospy.get_param("~min_q", [0.15, 0.15, -5.08, 0.15, 0.2])
+        self.max_q = rospy.get_param("~max_q", [5.8, 2.6, -0.15, 3.48, 5.75])
         self.file_with_trajectory_name = rospy.get_param("~file_with_trajectory_name", "file_with_trajectory_name.txt")
 
         self.traj_sub = rospy.Subscriber("decart_trajectory", DecartTrajectory, self.trajectoryCallback)
@@ -94,7 +110,6 @@ class Dec2JointTranslator:
                 return TriggerResponse(True, "Trajectory was successfully translated!")
         self.lock.release()
         return TriggerResponse(False, "Trajectory in the joint space can't be found!")
-
 
     def inLimits(self, q):
         for j in range(5):

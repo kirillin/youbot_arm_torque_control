@@ -16,7 +16,20 @@ find_package(catkin REQUIRED COMPONENTS
         tf
 )
 
+
+add_message_files(
+  FILES
+  DecartTrajectory.msg
+)
+
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  geometry_msgs
+)
+
 catkin_package(CATKIN_DEPENDS youbot_arm_kinematics message_runtime std_msgs)
+
 
 include_directories(
         include
