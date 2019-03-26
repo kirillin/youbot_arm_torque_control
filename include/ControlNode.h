@@ -21,7 +21,7 @@ using namespace Eigen;
 
 #define N 4
 enum Status {
-    NOTASK, POSE, TRAJECTORY
+    NOTASK, GRAVITY, POSE, TRAJECTORY
 };
 #define STR(A) (static_cast<std::ostringstream*>( &(std::ostringstream() << A) )->str())
 
@@ -34,7 +34,11 @@ class ControlNode {
     ros::NodeHandle nh, nh_for_params;
     brics_actuator::JointTorques tau_e;
 
+<<<<<<< HEAD
     Matrix<double, N, 1> q, qd;
+=======
+    Matrix<double, N, 1> q, qd, ddq;
+>>>>>>> 0054118b6141d383f389b707e8f45092829cabfd
     Matrix<double, N, N> kpp, kdp;
     Matrix<double, N, N> M;
     Matrix<double, N, 1> C, G, tau;
@@ -45,7 +49,7 @@ class ControlNode {
     Matrix<double, N, 1> qz;
 
 
-    void calcD(Matrix<double, N, 1> q, Matrix<double, N, 1> dq, double g);
+    void calcD(Matrix<double, N, 1> q, Matrix<double, N, 1> dq, Matrix<double, N, 1> ddq, double g);
 
     void calcMC(std::vector<double> q, std::vector<double> dq);
 
