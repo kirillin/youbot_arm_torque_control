@@ -27,15 +27,6 @@ if __name__ == "__main__":
         #trajectory.poses[i] = Pose(Point(0.18 + 0.05 * math.sin(i*0.2), -0.2 + i * 0.005, 0.01+0.01 * math.sin(i*0.3)), Quaternion(1.0, 0.0, 0.0, 0.0))
 
         trajectory.time_from_start.append(rospy.Duration(i*0.0625))
-    #
-    # for i in range(81):
-    #     trajectory.poses.append(Pose())
-    #     trajectory.poses[81+i] = Pose(Point(0.2, 0.20 - i*0.005, 0.0), Quaternion(1.0, 0.0, 0.0, 0.0))
-    #
-    #     #trajectory.poses[i] = Pose(Point(0.18 + 0.05 * math.sin(i*0.2), -0.2 + i * 0.005, 0.01+0.01 * math.sin(i*0.3)), Quaternion(1.0, 0.0, 0.0, 0.0))
-    #
-    #     trajectory.time_from_start.append(rospy.Duration((81+i)*0.0625))
-
 
 
     while not rospy.is_shutdown():
